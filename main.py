@@ -2,14 +2,15 @@ import os
 import shutil
 import smtplib
 import ssl
+import random
 from email.message import EmailMessage
-from ultralytics import YOLO
+from ultralytics import YOLO  # YOLOv8 para detecção de objetos
 import fiftyone as fo
 import fiftyone.zoo as foz
 from PIL import Image, ImageDraw
 
 # ------------------- Configurações -------------------
-ADMIN_EMAIL = "admin@example.com"
+ADMIN_EMAIL = "admin@example.com"  # Parametrize o e-mail do administrador
 EMAIL_SENDER = "seu_email@example.com"
 EMAIL_PASSWORD = "sua_senha"
 
@@ -45,43 +46,75 @@ def enviar_email(imagem_path, objeto_detectado):
         servidor.send_message(msg)
     print(f"E-mail enviado para {ADMIN_EMAIL} sobre a detecção de {objeto_detectado}.")
 
+# ------------------- Limpeza dos diretórios -------------------
+def limpar_pastas():
+    for pasta in [TRAIN_DIR, VAL_DIR, LABELS_TRAIN_DIR, LABELS_VAL_DIR, RESULTS_DIR]:
+        if os.path.exists(pasta):
+            shutil.rmtree(pasta)
+        os.makedirs(pasta, exist_ok=True)
+
+# ------------------- Avaliação do modelo -------------------
+def avaliar_modelo(modelo):
+    imagens_val = [os.path.join(VAL_DIR, img) for img in os.listdir(VAL_DIR) if img.endswith('.jpg')]
+    for img_path in imagens_val:
+        resultados = modelo(img_path)
+        for resultado in resultados[0].boxes.data.tolist():
+            x1, y1, x2, y2, conf, classe_id = resultado
+            objeto_detectado = ["Knife", "Scissors", "Sword"][int(classe_id)]
+
+            # Marcar a imagem
+            imagem = Image.open(img_path)
+            draw = ImageDraw.Draw(imagem)
+            draw.rectangle([x1, y1, x2, y2], outline="red", width=2)
+            draw.text((x1, y1), objeto_detectado, fill="red")
+            imagem.save(os.path.join(RESULTS_DIR, os.path.basename(img_path)))
+
+            # Enviar e-mail
+            #enviar_email(img_path, objeto_detectado)
+
 # ------------------- Download e preparação do dataset -------------------
 def preparar_dataset():
+    limpar_pastas()
     class_map = {"Knife": 0, "Scissors": 1, "Sword": 2}
     datasets = []
 
+    # Baixar imagens com objetos cortantes
     for classe in class_map.keys():
         dataset = foz.load_zoo_dataset(
             "open-images-v7",
-            split="validation",
+            split="train",
             label_types=["detections"],
             classes=[classe],
             max_samples=200,
-            shuffle=True
+            shuffle=True,
+            cleanup=True,
+            dataset_name=f"open-images-v7-{classe}-validation"
         )
         datasets.append(dataset)
-    
+
     # Combina todos os datasets
     dataset_combined = fo.Dataset(name="objetos_cortantes")
     for dataset in datasets:
         dataset_combined.add_samples(dataset)
+    
+    # Baixar imagens sem objetos cortantes
+    dataset_negativo = foz.load_zoo_dataset(
+        "open-images-v7",
+        split="train",
+        label_types=[],
+        max_samples=200,
+        shuffle=True,
+        cleanup=True,
+        dataset_name="open-images-v7-negativo"
+    )
+    for sample in dataset_negativo:
+        dataset_combined.add_sample(sample)
+
+    dataset_combined.shuffle()
 
     for i, sample in enumerate(dataset_combined):
         destino_img = TRAIN_DIR if i % 5 != 0 else VAL_DIR
-        destino_lbl = LABELS_TRAIN_DIR if i % 5 != 0 else LABELS_VAL_DIR
         shutil.copy2(sample.filepath, destino_img)
-
-        if sample.ground_truth:
-            label_path = os.path.join(destino_lbl, os.path.basename(sample.filepath).replace('.jpg', '.txt'))
-            with open(label_path, 'w') as f:
-                for detection in sample.ground_truth.detections:
-                    label_idx = class_map.get(detection.label, -1)
-                    if label_idx == -1:
-                        continue
-                    x, y, w, h = detection.bounding_box
-                    f.write(f"{label_idx} {x + w / 2} {y + h / 2} {w} {h}\n")
-    print(f"Imagens de treino: {len(os.listdir(TRAIN_DIR))}, Imagens de validação: {len(os.listdir(VAL_DIR))}")
-    return dataset_combined
 
 # ------------------- Gerar arquivo de configuração do YOLO -------------------
 def gerar_data_yaml():
@@ -105,56 +138,12 @@ def treinar_modelo():
     modelo.train(data=os.path.join(DATASET_DIR, 'data.yaml'), epochs=10, imgsz=640)
     return modelo
 
-# ------------------- Detecção e marcação -------------------
-def detectar_objetos(modelo, imagem_path):
-    resultados = modelo(imagem_path)
-    imagem = Image.open(imagem_path)
-    draw = ImageDraw.Draw(imagem)
-    objeto_detectado = False
-
-    for resultado in resultados:
-        for caixa in resultado.boxes:
-            classe = resultado.names[int(caixa.cls)]
-            if classe in ["Knife", "Scissors", "Sword"]:
-                objeto_detectado = True
-                x1, y1, x2, y2 = caixa.xyxy[0]
-                draw.rectangle([x1, y1, x2, y2], outline="red", width=2)
-                draw.text((x1, y1), classe, fill="red")
-    
-    imagem_marcada_path = os.path.join(RESULTS_DIR, os.path.basename(imagem_path))
-    imagem.save(imagem_marcada_path)
-
-    if objeto_detectado:
-        enviar_email(imagem_marcada_path, classe)
-
-# ------------------- Avaliação do modelo -------------------
-def avaliar_modelo(modelo, dataset):
-    imagens_teste = [sample.filepath for sample in dataset]
-    total = len(imagens_teste)
-    detectados = 0
-    
-    for imagem_path in imagens_teste:
-        resultados = modelo(imagem_path)
-        for resultado in resultados:
-            for caixa in resultado.boxes:
-                classe = resultado.names[int(caixa.cls)]
-                if classe in ["Knife", "Scissors", "Sword"]:
-                    detectados += 1
-                    break
-    
-    acuracia = (detectados / total) * 100 if total > 0 else 0
-    print(f"Acurácia: {acuracia:.2f}%")
-
 # ------------------- Pipeline Principal -------------------
 def main():
-    dataset = preparar_dataset()
+    preparar_dataset()
     modelo = treinar_modelo()
-    
-    imagens_teste = [sample.filepath for sample in dataset]
-    for imagem in imagens_teste:
-        detectar_objetos(modelo, imagem)
-    
-    avaliar_modelo(modelo, dataset)
+    avaliar_modelo(modelo)
+    print("Treinamento e avaliação concluídos.")
 
 if __name__ == "__main__":
     main()
