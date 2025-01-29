@@ -3,11 +3,13 @@ import shutil
 import smtplib
 import ssl
 import random
+import torch
 from email.message import EmailMessage
 from ultralytics import YOLO  # YOLOv8 para detecção de objetos
 import fiftyone as fo
 import fiftyone.zoo as foz
 from PIL import Image, ImageDraw
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 # ------------------- Configurações -------------------
 ADMIN_EMAIL = "admin@example.com"  # Parametrize o e-mail do administrador
@@ -48,38 +50,18 @@ def enviar_email(imagem_path, objeto_detectado):
 
 # ------------------- Limpeza dos diretórios -------------------
 def limpar_pastas():
-    for pasta in [TRAIN_DIR, VAL_DIR, LABELS_TRAIN_DIR, LABELS_VAL_DIR, RESULTS_DIR]:
+    for pasta in [VAL_DIR, LABELS_VAL_DIR, RESULTS_DIR]:
         if os.path.exists(pasta):
             shutil.rmtree(pasta)
         os.makedirs(pasta, exist_ok=True)
 
-# ------------------- Avaliação do modelo -------------------
-def avaliar_modelo(modelo):
-    imagens_val = [os.path.join(VAL_DIR, img) for img in os.listdir(VAL_DIR) if img.endswith('.jpg')]
-    for img_path in imagens_val:
-        resultados = modelo(img_path)
-        for resultado in resultados[0].boxes.data.tolist():
-            x1, y1, x2, y2, conf, classe_id = resultado
-            objeto_detectado = ["Knife", "Scissors", "Sword"][int(classe_id)]
-
-            # Marcar a imagem
-            imagem = Image.open(img_path)
-            draw = ImageDraw.Draw(imagem)
-            draw.rectangle([x1, y1, x2, y2], outline="red", width=2)
-            draw.text((x1, y1), objeto_detectado, fill="red")
-            imagem.save(os.path.join(RESULTS_DIR, os.path.basename(img_path)))
-
-            # Enviar e-mail
-            #enviar_email(img_path, objeto_detectado)
-
-# ------------------- Download e preparação do dataset -------------------
+# ------------------- Preparação do dataset -------------------
 def preparar_dataset():
     limpar_pastas()
-    class_map = {"Knife": 0, "Scissors": 1, "Sword": 2}
-    datasets = []
-
-    # Baixar imagens com objetos cortantes
-    for classe in class_map.keys():
+    classes_cortantes = ["Knife", "Scissors", "Sword"]
+    samples = []
+    
+    for classe in classes_cortantes:
         dataset = foz.load_zoo_dataset(
             "open-images-v7",
             split="train",
@@ -90,53 +72,87 @@ def preparar_dataset():
             cleanup=True,
             dataset_name=f"open-images-v7-{classe}-validation"
         )
-        datasets.append(dataset)
-
-    # Combina todos os datasets
-    dataset_combined = fo.Dataset(name="objetos_cortantes")
-    for dataset in datasets:
-        dataset_combined.add_samples(dataset)
+        print(f"Carregando dataset de {classe}", len(dataset))
+        samples.extend(dataset)  # Adicionando amostras ao conjunto geral
     
-    # Baixar imagens sem objetos cortantes
-    dataset_negativo = foz.load_zoo_dataset(
+    # Carregar imagens sem objetos cortantes
+    dataset_sem_cortantes = foz.load_zoo_dataset(
         "open-images-v7",
         split="train",
-        label_types=[],
+        label_types=["detections"],
+        exclude_classes=classes_cortantes,
         max_samples=200,
         shuffle=True,
         cleanup=True,
-        dataset_name="open-images-v7-negativo"
+        dataset_name="open-images-v7-no-cutting-tools"
     )
-    for sample in dataset_negativo:
-        dataset_combined.add_sample(sample)
+    print(f"Carregando dataset sem objetos cortantes", len(dataset_sem_cortantes))
+    samples.extend(dataset_sem_cortantes)
 
-    dataset_combined.shuffle()
+    random.shuffle(samples)
+    
+    for i, sample in enumerate(samples):
+        destino_img = TRAIN_DIR if i < 0.8 * len(samples) else VAL_DIR
+        destino_label = LABELS_TRAIN_DIR if i < 0.8 * len(samples) else LABELS_VAL_DIR
+        shutil.copy(sample.filepath, destino_img)
+        salvar_labels(sample, destino_label)
 
-    for i, sample in enumerate(dataset_combined):
-        destino_img = TRAIN_DIR if i % 5 != 0 else VAL_DIR
-        shutil.copy2(sample.filepath, destino_img)
-
-# ------------------- Gerar arquivo de configuração do YOLO -------------------
-def gerar_data_yaml():
-    yaml_content = f"""
-path: {DATASET_DIR}
-train: images/train
-val: images/val
-
-names:
-  0: Knife
-  1: Scissors
-  2: Sword
-"""
-    with open(os.path.join(DATASET_DIR, 'data.yaml'), 'w') as f:
-        f.write(yaml_content)
+# ------------------- Salvar labels -------------------
+def salvar_labels(sample, destino_label):
+    label_path = os.path.join(destino_label, os.path.splitext(os.path.basename(sample.filepath))[0] + ".txt")
+    with open(label_path, "w") as f:
+        if sample.ground_truth and sample.ground_truth.detections:
+            detections = sample.ground_truth.detections
+            for det in detections:
+                classe = det.label
+                if classe in ["Knife", "Scissors", "Sword"]:
+                    class_id = ["Knife", "Scissors", "Sword"].index(classe)
+                    x, y, w, h = det.bounding_box
+                    x_center = x + (w / 2)
+                    y_center = y + (h / 2)
+                    f.write(f"{class_id} {x_center} {y_center} {w} {h}\n")
 
 # ------------------- Treinamento do modelo -------------------
 def treinar_modelo():
-    gerar_data_yaml()
-    modelo = YOLO('yolov8n.pt')
-    modelo.train(data=os.path.join(DATASET_DIR, 'data.yaml'), epochs=10, imgsz=640)
+    modelo = YOLO("yolov8n.pt")
+    modelo.train(data=os.path.join(DATASET_DIR, "data.yaml"), epochs=15, imgsz=640)
     return modelo
+
+# ------------------- Avaliação do modelo -------------------
+def avaliar_modelo(modelo):
+    imagens_val = [os.path.join(VAL_DIR, img) for img in os.listdir(VAL_DIR) if img.endswith('.jpg')]
+    y_true, y_pred = [], []
+
+    for img_path in imagens_val:
+        resultados = modelo(img_path)
+        imagem = Image.open(img_path)
+        draw = ImageDraw.Draw(imagem)
+
+        for resultado in resultados[0].boxes:
+            classe_id = int(resultado.cls.item())
+            objeto_detectado = ["Knife", "Scissors", "Sword"][classe_id]
+            y_pred.append(classe_id)
+
+            x1, y1, x2, y2 = resultado.xyxy[0].tolist()
+            draw.rectangle([x1, y1, x2, y2], outline="red", width=2)
+            draw.text((x1, y1), objeto_detectado, fill="red")
+            imagem.save(os.path.join(RESULTS_DIR, os.path.basename(img_path)))
+
+            #enviar_email(img_path, objeto_detectado)
+
+        label_file = os.path.join(LABELS_VAL_DIR, os.path.splitext(os.path.basename(img_path))[0] + ".txt")
+        if os.path.exists(label_file):
+            with open(label_file, "r") as f:
+                linhas = f.readlines()
+                for linha in linhas:
+                    y_true.append(int(linha.split()[0]))
+
+    if y_true and y_pred:
+        acc = accuracy_score(y_true, y_pred)
+        prec = precision_score(y_true, y_pred, average='weighted')
+        rec = recall_score(y_true, y_pred, average='weighted')
+        f1 = f1_score(y_true, y_pred, average='weighted')
+        print(f"Acurácia: {acc:.2f}, Precisão: {prec:.2f}, Recall: {rec:.2f}, F1-Score: {f1:.2f}")
 
 # ------------------- Pipeline Principal -------------------
 def main():
