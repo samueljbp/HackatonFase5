@@ -90,7 +90,7 @@ def preparar_dataset():
     samples.extend(dataset_sem_cortantes)
 
     random.shuffle(samples)
-    
+
     for i, sample in enumerate(samples):
         destino_img = TRAIN_DIR if i < 0.8 * len(samples) else VAL_DIR
         destino_label = LABELS_TRAIN_DIR if i < 0.8 * len(samples) else LABELS_VAL_DIR
@@ -115,7 +115,7 @@ def salvar_labels(sample, destino_label):
 # ------------------- Treinamento do modelo -------------------
 def treinar_modelo():
     modelo = YOLO("yolov8n.pt")
-    modelo.train(data=os.path.join(DATASET_DIR, "data.yaml"), epochs=15, imgsz=640)
+    modelo.train(data=os.path.join(DATASET_DIR, "data.yaml"), epochs=10, imgsz=640)
     return modelo
 
 # ------------------- Avaliação do modelo -------------------
@@ -127,32 +127,52 @@ def avaliar_modelo(modelo):
         resultados = modelo(img_path)
         imagem = Image.open(img_path)
         draw = ImageDraw.Draw(imagem)
+        pred_labels = []
 
+        # Processa as previsões do modelo
         for resultado in resultados[0].boxes:
             classe_id = int(resultado.cls.item())
-            objeto_detectado = ["Knife", "Scissors", "Sword"][classe_id]
-            y_pred.append(classe_id)
+            if classe_id < len(["Knife", "Scissors", "Sword"]):
+                objeto_detectado = ["Knife", "Scissors", "Sword"][classe_id]
+                pred_labels.append(classe_id)
 
-            x1, y1, x2, y2 = resultado.xyxy[0].tolist()
-            draw.rectangle([x1, y1, x2, y2], outline="red", width=2)
-            draw.text((x1, y1), objeto_detectado, fill="red")
-            imagem.save(os.path.join(RESULTS_DIR, os.path.basename(img_path)))
+                x1, y1, x2, y2 = resultado.xyxy[0].tolist()
+                draw.rectangle([x1, y1, x2, y2], outline="red", width=2)
+                draw.text((x1, y1), objeto_detectado, fill="red")
+                imagem.save(os.path.join(RESULTS_DIR, os.path.basename(img_path)))
 
-            #enviar_email(img_path, objeto_detectado)
+                # Enviar alerta se objeto cortante for identificado
+                #enviar_email(img_path, objeto_detectado)
 
+        # Carregar os labels reais da imagem
         label_file = os.path.join(LABELS_VAL_DIR, os.path.splitext(os.path.basename(img_path))[0] + ".txt")
+        true_labels = []
         if os.path.exists(label_file):
             with open(label_file, "r") as f:
                 linhas = f.readlines()
                 for linha in linhas:
-                    y_true.append(int(linha.split()[0]))
+                    true_labels.append(int(linha.split()[0]))
 
-    if y_true and y_pred:
+        # Garantir que ambos os arrays tenham o mesmo tamanho
+        if not true_labels:
+            true_labels.append(0)  # Caso a imagem não tenha objetos cortantes
+
+        if not pred_labels:
+            pred_labels.append(0)  # Caso não tenha previsões do modelo
+
+        y_true.extend(true_labels)
+        y_pred.extend(pred_labels)
+
+    # Calcular métricas se houver dados
+    if len(y_true) == len(y_pred) and len(y_true) > 0:
         acc = accuracy_score(y_true, y_pred)
         prec = precision_score(y_true, y_pred, average='weighted')
         rec = recall_score(y_true, y_pred, average='weighted')
         f1 = f1_score(y_true, y_pred, average='weighted')
         print(f"Acurácia: {acc:.2f}, Precisão: {prec:.2f}, Recall: {rec:.2f}, F1-Score: {f1:.2f}")
+    else:
+        print(f"Erro: Número de amostras em y_true ({len(y_true)}) e y_pred ({len(y_pred)}) não correspondem.")
+
 
 # ------------------- Pipeline Principal -------------------
 def main():
