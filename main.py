@@ -11,6 +11,7 @@ import fiftyone.zoo as foz  # Zoo de datasets do FiftyOne
 from PIL import Image, ImageDraw  # Biblioteca para manipulação de imagens
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score  # Métricas de avaliação
 import cv2  # Biblioteca para manipulação de vídeos
+import datetime  # Biblioteca para obter o timestamp atual
 
 # ------------------- Configurações -------------------
 ADMIN_EMAIL = "admin@example.com"  # E-mail do administrador para envio de alertas
@@ -20,21 +21,27 @@ EMAIL_PASSWORD = "sua_senha"  # Senha do e-mail de envio (deve ser protegida)
 # Diretórios base e específicos para armazenamento de imagens e rótulos
 BASE_DIR = os.getcwd()
 RESULTS_DIR = os.path.join(BASE_DIR, "resultados")
+VIDEO_FRAMES_DIR = os.path.join(BASE_DIR + "/videos", "frames")
+NEGATIVOS_DIR = os.path.join(RESULTS_DIR, "negativos")
+NEGATIVOS_VIDEO_DIR = os.path.join(RESULTS_DIR, "negativos_video")
+POSITIVOS_VIDEO_DIR = os.path.join(RESULTS_DIR, "positivos_video")
 DATASET_DIR = os.path.join(BASE_DIR, "dataset")
 TRAIN_DIR = os.path.join(DATASET_DIR, "images", "train")
 VAL_DIR = os.path.join(DATASET_DIR, "images", "val")
 LABELS_TRAIN_DIR = os.path.join(DATASET_DIR, "labels", "train")
 LABELS_VAL_DIR = os.path.join(DATASET_DIR, "labels", "val")
 
-# Criação dos diretórios se não existirem
-os.makedirs(RESULTS_DIR, exist_ok=True)
-os.makedirs(os.path.join(RESULTS_DIR, "negativos"), exist_ok=True)
-os.makedirs(os.path.join(RESULTS_DIR, "positivos_video"), exist_ok=True)
-os.makedirs(os.path.join(RESULTS_DIR, "negativos_video"), exist_ok=True)
-os.makedirs(TRAIN_DIR, exist_ok=True)
-os.makedirs(VAL_DIR, exist_ok=True)
-os.makedirs(LABELS_TRAIN_DIR, exist_ok=True)
-os.makedirs(LABELS_VAL_DIR, exist_ok=True)
+
+def criar_pastas():
+    # Criação dos diretórios se não existirem
+    os.makedirs(VIDEO_FRAMES_DIR, exist_ok=True)
+    os.makedirs(NEGATIVOS_DIR, exist_ok=True)
+    os.makedirs(NEGATIVOS_VIDEO_DIR, exist_ok=True)
+    os.makedirs(POSITIVOS_VIDEO_DIR, exist_ok=True)
+    os.makedirs(TRAIN_DIR, exist_ok=True)
+    os.makedirs(VAL_DIR, exist_ok=True)
+    os.makedirs(LABELS_TRAIN_DIR, exist_ok=True)
+    os.makedirs(LABELS_VAL_DIR, exist_ok=True)
 
 # ------------------- Função de envio de e-mail -------------------
 def enviar_email(imagem_path, objeto_detectado):
@@ -57,8 +64,26 @@ def enviar_email(imagem_path, objeto_detectado):
 
 # ------------------- Limpeza dos diretórios -------------------
 def limpar_pastas():
-    """Remove e recria diretórios para garantir que a execução ocorra sem resíduos de execuções anteriores."""
-    for pasta in [VAL_DIR, LABELS_VAL_DIR, RESULTS_DIR]:
+    """Limpa as pastas, movendo o conteúdo da pasta resultados (exceto as pastas de timestamp) para uma pasta com timestamp."""
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")  # Obtém o timestamp atual
+    pasta_resultados_antiga = os.path.join(BASE_DIR, "resultados")
+    pasta_resultados_nova = os.path.join(BASE_DIR, "resultados", timestamp)
+
+    if os.path.exists(pasta_resultados_antiga):  # Verifica se a pasta existe
+        conteudo_resultados = os.listdir(pasta_resultados_antiga)
+        pastas_timestamp = [item for item in conteudo_resultados if os.path.isdir(os.path.join(pasta_resultados_antiga, item)) and item.startswith(("20", "21"))] # Assume timestamps começam com 20 ou 21 (para os anos 20xx)
+
+        conteudo_para_mover = [item for item in conteudo_resultados if item not in pastas_timestamp] # Conteúdo a mover exclui pastas de timestamp
+
+        if conteudo_para_mover: # Verifica se há conteúdo para mover
+            os.makedirs(pasta_resultados_nova, exist_ok=True)  # Cria a nova pasta com timestamp
+            for item in conteudo_para_mover:
+                caminho_antigo = os.path.join(pasta_resultados_antiga, item)
+                caminho_novo = os.path.join(pasta_resultados_nova, item)
+                shutil.move(caminho_antigo, caminho_novo)  # Move o conteúdo para a nova pasta
+
+    # Limpa as demais pastas
+    for pasta in [VAL_DIR, LABELS_VAL_DIR, VIDEO_FRAMES_DIR]:
         if os.path.exists(pasta):
             shutil.rmtree(pasta)
         os.makedirs(pasta, exist_ok=True)
@@ -66,7 +91,6 @@ def limpar_pastas():
 # ------------------- Preparação do dataset -------------------
 def preparar_dataset():
     """Baixa e organiza as imagens do dataset Open Images V7 para treinamento e validação."""
-    limpar_pastas()
     classes_cortantes = ["Knife", "Scissors", "Sword"]  # Classes de objetos cortantes
     samples = []  # Lista para armazenar as amostras coletadas
     
@@ -122,11 +146,18 @@ def salvar_labels(sample, destino_label):
                     y_center = y + (h / 2)
                     f.write(f"{class_id} {x_center} {y_center} {w} {h}\n")
 
+# ------------------- Carregar modelo treinado -------------------
+def carregar_modelo(modelo_path):
+    """Carrega um modelo YOLOv8 treinado salvo."""
+    modelo = YOLO(modelo_path)
+    return modelo
+
 # ------------------- Treinamento do modelo -------------------
-def treinar_modelo():
-    """Treina o modelo YOLOv8 para detecção de objetos cortantes."""
+def treinar_modelo(modelo_path):
+    """Treina o modelo YOLOv8 e salva o modelo treinado."""
     modelo = YOLO("yolov8n.pt")
     modelo.train(data=os.path.join(DATASET_DIR, "data.yaml"), epochs=10, imgsz=640)
+    modelo.save(modelo_path)  # Salva o modelo treinado
     return modelo
 
 # ------------------- Avaliação do modelo -------------------
@@ -169,7 +200,7 @@ def avaliar_modelo(modelo):
                 pred_labels.append(0)
 
                 # Salva a imagem negativa
-                imagem.save(os.path.join(RESULTS_DIR, "negativos", os.path.basename(img_path)))
+                imagem.save(os.path.join(NEGATIVOS_DIR, os.path.basename(img_path)))
 
         # Carregar os labels reais da imagem
         label_file = os.path.join(LABELS_VAL_DIR, os.path.splitext(os.path.basename(img_path))[0] + ".txt")
@@ -218,6 +249,49 @@ def avaliar_modelo_video(modelo, video_path):
             draw = ImageDraw.Draw(frame_pil)
             pred_labels = []
 
+            # Itera por todos os resultados da detecção
+            for resultado in resultados[0].boxes:
+                classe_id = int(resultado.cls.item())
+                if classe_id < len(["Knife", "Scissors", "Sword"]):
+                    objeto_detectado = ["Knife", "Scissors", "Sword"][classe_id]
+                    pred_labels.append(classe_id)
+                    x1, y1, x2, y2 = resultado.xyxy[0].tolist()
+                    draw.rectangle([x1, y1, x2, y2], outline="red", width=2)
+                    draw.text((x1, y1), objeto_detectado, fill="red")
+                    # enviar_email(video_path, objeto_detectado)  # Adapte para enviar alertas de vídeo
+
+                    frame_pil.save(os.path.join(POSITIVOS_VIDEO_DIR, f"frame_{frame_count // int(fps)}.jpg"))
+                else:
+                    pred_labels.append(0)
+                    frame_pil.save(os.path.join(NEGATIVOS_VIDEO_DIR, f"frame_{frame_count // int(fps)}.jpg"))
+
+            # Salva o frame com as previsões (opcional)
+            frame_pil.save(os.path.join(VIDEO_FRAMES_DIR, f"frame_{frame_count // int(fps)}.jpg"))
+
+        frame_count += 1
+
+    video.release()
+def avaliar_modelo_video(modelo, video_path):
+    """Avalia o modelo em um vídeo, extraindo frames a cada segundo."""
+    video = cv2.VideoCapture(video_path)
+    fps = video.get(cv2.CAP_PROP_FPS)  # Obtém o FPS do vídeo
+    frame_count = 0
+
+    while video.isOpened():
+        ret, frame = video.read()
+        if not ret:
+            break
+
+        # Extrai um frame a cada segundo
+        if frame_count % int(fps) == 0:
+            # Converte o frame para o formato PIL
+            frame_pil = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+
+            # Realiza a detecção no frame
+            resultados = modelo(frame_pil)
+            draw = ImageDraw.Draw(frame_pil)
+            pred_labels = []
+
             for resultado in resultados[0].boxes:
                 classe_id = int(resultado.cls.item())
                 if classe_id < len(["Knife", "Scissors", "Sword"]):
@@ -228,12 +302,15 @@ def avaliar_modelo_video(modelo, video_path):
                     draw.text((x1, y1), objeto_detectado, fill="red")
 
                     # Salva o frame com as previsões (opcional)
-                    frame_pil.save(os.path.join(RESULTS_DIR, "positivos_video", f"frame_{frame_count // int(fps)}.jpg"))
+                    frame_pil.save(os.path.join(POSITIVOS_VIDEO_DIR, f"frame_{frame_count // int(fps)}.jpg"))
 
                     # enviar_email(video_path, objeto_detectado)  # Adapte para enviar alertas de vídeo
                 else:
                     # Salva o frame com as previsões (opcional)
-                    frame_pil.save(os.path.join(RESULTS_DIR, "negativos_video", f"frame_{frame_count // int(fps)}.jpg"))
+                    frame_pil.save(os.path.join(NEGATIVOS_VIDEO_DIR, f"frame_{frame_count // int(fps)}.jpg"))
+
+            output_path = os.path.join(VIDEO_FRAMES_DIR, f"frame_{frame_count // int(fps)}.jpg")
+            frame_pil.save(output_path)
             
 
         frame_count += 1
@@ -242,15 +319,33 @@ def avaliar_modelo_video(modelo, video_path):
 
 # ------------------- Pipeline Principal -------------------
 def main():
-    preparar_dataset()
-    modelo = treinar_modelo()
-    avaliar_modelo(modelo)
-    print("Treinamento e avaliação concluídos.")
+    # Variável para controlar se deve treinar ou usar modelo salvo
+    TREINAR_MODELO = False  # Defina como True para treinar, False para usar modelo salvo
 
+    modelo_path = "melhor_modelo.pt"  # Caminho para o modelo salvo
+
+    limpar_pastas()
+    criar_pastas()
+
+    if TREINAR_MODELO:
+        preparar_dataset()
+
+        modelo = treinar_modelo(modelo_path)
+
+        avaliar_modelo(modelo)
+        print("Treinamento e avaliação concluídos.")
+    else:
+        modelo = carregar_modelo(modelo_path)
+      
     # Avalia o modelo no vídeo
     video_path = "videos/video.mp4"  # Substitua pelo caminho do seu vídeo
     avaliar_modelo_video(modelo, video_path)
-    print("Avaliação em vídeo concluída.")
+    print("Avaliação em vídeo 1 concluída.")
+
+    # Avalia o modelo no vídeo
+    video_path = "videos/video2.mp4"  # Substitua pelo caminho do seu vídeo
+    avaliar_modelo_video(modelo, video_path)
+    print("Avaliação em vídeo 2 concluída.")
 
 if __name__ == "__main__":
     main()
