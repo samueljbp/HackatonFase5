@@ -12,6 +12,7 @@ from PIL import Image, ImageDraw  # Biblioteca para manipulação de imagens
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score  # Métricas de avaliação
 import cv2  # Biblioteca para manipulação de vídeos
 import datetime  # Biblioteca para obter o timestamp atual
+from fiftyone.utils.openimages import get_classes
 
 # ------------------- Configurações -------------------
 ADMIN_EMAIL = "admin@example.com"  # E-mail do administrador para envio de alertas
@@ -31,6 +32,14 @@ VAL_DIR = os.path.join(DATASET_DIR, "images", "val")
 LABELS_TRAIN_DIR = os.path.join(DATASET_DIR, "labels", "train")
 LABELS_VAL_DIR = os.path.join(DATASET_DIR, "labels", "val")
 
+# Obtendo a lista de classes de interesse
+classes = get_classes()
+
+# Exemplo de uso da lista de classes
+for classe in classes:
+    print(f"Classe de interesse: {classe}")
+
+exit(0)
 
 def criar_pastas():
     # Criação dos diretórios se não existirem
@@ -100,7 +109,7 @@ def preparar_dataset():
             split="train",
             label_types=["detections"],
             classes=[classe],
-            max_samples=200,
+            max_samples=1000,
             shuffle=True,
             cleanup=True,
             dataset_name=f"open-images-v7-{classe}-validation"
@@ -114,7 +123,7 @@ def preparar_dataset():
         split="train",
         label_types=["detections"],
         exclude_classes=classes_cortantes,
-        max_samples=200,
+        max_samples=500,
         shuffle=True,
         cleanup=True,
         dataset_name="open-images-v7-no-cutting-tools"
@@ -320,7 +329,7 @@ def avaliar_modelo_video(modelo, video_path):
 # ------------------- Pipeline Principal -------------------
 def main():
     # Variável para controlar se deve treinar ou usar modelo salvo
-    TREINAR_MODELO = False  # Defina como True para treinar, False para usar modelo salvo
+    TREINAR_MODELO = True  # Defina como True para treinar, False para usar modelo salvo
 
     modelo_path = "melhor_modelo.pt"  # Caminho para o modelo salvo
 
