@@ -1,0 +1,601 @@
+Classe de interesse: Accordion
+Classe de interesse: Adhesive tape
+Classe de interesse: Aircraft
+Classe de interesse: Airplane
+Classe de interesse: Alarm clock
+Classe de interesse: Alpaca
+Classe de interesse: Ambulance
+Classe de interesse: Animal
+Classe de interesse: Ant
+Classe de interesse: Antelope
+Classe de interesse: Apple
+Classe de interesse: Armadillo
+Classe de interesse: Artichoke
+Classe de interesse: Auto part
+Classe de interesse: Axe
+Classe de interesse: Backpack
+Classe de interesse: Bagel
+Classe de interesse: Baked goods
+Classe de interesse: Balance beam
+Classe de interesse: Ball
+Classe de interesse: Balloon
+Classe de interesse: Banana
+Classe de interesse: Band-aid
+Classe de interesse: Banjo
+Classe de interesse: Barge
+Classe de interesse: Barrel
+Classe de interesse: Baseball bat
+Classe de interesse: Baseball glove
+Classe de interesse: Bat (Animal)
+Classe de interesse: Bathroom accessory
+Classe de interesse: Bathroom cabinet
+Classe de interesse: Bathtub
+Classe de interesse: Beaker
+Classe de interesse: Bear
+Classe de interesse: Bed
+Classe de interesse: Bee
+Classe de interesse: Beehive
+Classe de interesse: Beer
+Classe de interesse: Beetle
+Classe de interesse: Bell pepper
+Classe de interesse: Belt
+Classe de interesse: Bench
+Classe de interesse: Bicycle
+Classe de interesse: Bicycle helmet
+Classe de interesse: Bicycle wheel
+Classe de interesse: Bidet
+Classe de interesse: Billboard
+Classe de interesse: Billiard table
+Classe de interesse: Binoculars
+Classe de interesse: Bird
+Classe de interesse: Blender
+Classe de interesse: Blue jay
+Classe de interesse: Boat
+Classe de interesse: Bomb
+Classe de interesse: Book
+Classe de interesse: Bookcase
+Classe de interesse: Boot
+Classe de interesse: Bottle
+Classe de interesse: Bottle opener
+Classe de interesse: Bow and arrow
+Classe de interesse: Bowl
+Classe de interesse: Bowling equipment
+Classe de interesse: Box
+Classe de interesse: Boy
+Classe de interesse: Brassiere
+Classe de interesse: Bread
+Classe de interesse: Briefcase
+Classe de interesse: Broccoli
+Classe de interesse: Bronze sculpture
+Classe de interesse: Brown bear
+Classe de interesse: Building
+Classe de interesse: Bull
+Classe de interesse: Burrito
+Classe de interesse: Bus
+Classe de interesse: Bust
+Classe de interesse: Butterfly
+Classe de interesse: Cabbage
+Classe de interesse: Cabinetry
+Classe de interesse: Cake
+Classe de interesse: Cake stand
+Classe de interesse: Calculator
+Classe de interesse: Camel
+Classe de interesse: Camera
+Classe de interesse: Can opener
+Classe de interesse: Canary
+Classe de interesse: Candle
+Classe de interesse: Candy
+Classe de interesse: Cannon
+Classe de interesse: Canoe
+Classe de interesse: Cantaloupe
+Classe de interesse: Car
+Classe de interesse: Carnivore
+Classe de interesse: Carrot
+Classe de interesse: Cart
+Classe de interesse: Cassette deck
+Classe de interesse: Castle
+Classe de interesse: Cat
+Classe de interesse: Cat furniture
+Classe de interesse: Caterpillar
+Classe de interesse: Cattle
+Classe de interesse: Ceiling fan
+Classe de interesse: Cello
+Classe de interesse: Centipede
+Classe de interesse: Chainsaw
+Classe de interesse: Chair
+Classe de interesse: Cheese
+Classe de interesse: Cheetah
+Classe de interesse: Chest of drawers
+Classe de interesse: Chicken
+Classe de interesse: Chime
+Classe de interesse: Chisel
+Classe de interesse: Chopsticks
+Classe de interesse: Christmas tree
+Classe de interesse: Clock
+Classe de interesse: Closet
+Classe de interesse: Clothing
+Classe de interesse: Coat
+Classe de interesse: Cocktail
+Classe de interesse: Cocktail shaker
+Classe de interesse: Coconut
+Classe de interesse: Coffee
+Classe de interesse: Coffee cup
+Classe de interesse: Coffee table
+Classe de interesse: Coffeemaker
+Classe de interesse: Coin
+Classe de interesse: Common fig
+Classe de interesse: Common sunflower
+Classe de interesse: Computer keyboard
+Classe de interesse: Computer monitor
+Classe de interesse: Computer mouse
+Classe de interesse: Container
+Classe de interesse: Convenience store
+Classe de interesse: Cookie
+Classe de interesse: Cooking spray
+Classe de interesse: Corded phone
+Classe de interesse: Cosmetics
+Classe de interesse: Couch
+Classe de interesse: Countertop
+Classe de interesse: Cowboy hat
+Classe de interesse: Crab
+Classe de interesse: Cream
+Classe de interesse: Cricket ball
+Classe de interesse: Crocodile
+Classe de interesse: Croissant
+Classe de interesse: Crown
+Classe de interesse: Crutch
+Classe de interesse: Cucumber
+Classe de interesse: Cupboard
+Classe de interesse: Curtain
+Classe de interesse: Cutting board
+Classe de interesse: Dagger
+Classe de interesse: Dairy Product
+Classe de interesse: Deer
+Classe de interesse: Desk
+Classe de interesse: Dessert
+Classe de interesse: Diaper
+Classe de interesse: Dice
+Classe de interesse: Digital clock
+Classe de interesse: Dinosaur
+Classe de interesse: Dishwasher
+Classe de interesse: Dog
+Classe de interesse: Dog bed
+Classe de interesse: Doll
+Classe de interesse: Dolphin
+Classe de interesse: Door
+Classe de interesse: Door handle
+Classe de interesse: Doughnut
+Classe de interesse: Dragonfly
+Classe de interesse: Drawer
+Classe de interesse: Dress
+Classe de interesse: Drill (Tool)
+Classe de interesse: Drink
+Classe de interesse: Drinking straw
+Classe de interesse: Drum
+Classe de interesse: Duck
+Classe de interesse: Dumbbell
+Classe de interesse: Eagle
+Classe de interesse: Earrings
+Classe de interesse: Egg (Food)
+Classe de interesse: Elephant
+Classe de interesse: Envelope
+Classe de interesse: Eraser
+Classe de interesse: Face powder
+Classe de interesse: Facial tissue holder
+Classe de interesse: Falcon
+Classe de interesse: Fashion accessory
+Classe de interesse: Fast food
+Classe de interesse: Fax
+Classe de interesse: Fedora
+Classe de interesse: Filing cabinet
+Classe de interesse: Fire hydrant
+Classe de interesse: Fireplace
+Classe de interesse: Fish
+Classe de interesse: Flag
+Classe de interesse: Flashlight
+Classe de interesse: Flower
+Classe de interesse: Flowerpot
+Classe de interesse: Flute
+Classe de interesse: Flying disc
+Classe de interesse: Food
+Classe de interesse: Food processor
+Classe de interesse: Football
+Classe de interesse: Football helmet
+Classe de interesse: Footwear
+Classe de interesse: Fork
+Classe de interesse: Fountain
+Classe de interesse: Fox
+Classe de interesse: French fries
+Classe de interesse: French horn
+Classe de interesse: Frog
+Classe de interesse: Fruit
+Classe de interesse: Frying pan
+Classe de interesse: Furniture
+Classe de interesse: Garden Asparagus
+Classe de interesse: Gas stove
+Classe de interesse: Giraffe
+Classe de interesse: Girl
+Classe de interesse: Glasses
+Classe de interesse: Glove
+Classe de interesse: Goat
+Classe de interesse: Goggles
+Classe de interesse: Goldfish
+Classe de interesse: Golf ball
+Classe de interesse: Golf cart
+Classe de interesse: Gondola
+Classe de interesse: Goose
+Classe de interesse: Grape
+Classe de interesse: Grapefruit
+Classe de interesse: Grinder
+Classe de interesse: Guacamole
+Classe de interesse: Guitar
+Classe de interesse: Hair dryer
+Classe de interesse: Hair spray
+Classe de interesse: Hamburger
+Classe de interesse: Hammer
+Classe de interesse: Hamster
+Classe de interesse: Hand dryer
+Classe de interesse: Handbag
+Classe de interesse: Handgun
+Classe de interesse: Harbor seal
+Classe de interesse: Harmonica
+Classe de interesse: Harp
+Classe de interesse: Harpsichord
+Classe de interesse: Hat
+Classe de interesse: Headphones
+Classe de interesse: Heater
+Classe de interesse: Hedgehog
+Classe de interesse: Helicopter
+Classe de interesse: Helmet
+Classe de interesse: High heels
+Classe de interesse: Hiking equipment
+Classe de interesse: Hippopotamus
+Classe de interesse: Home appliance
+Classe de interesse: Honeycomb
+Classe de interesse: Horizontal bar
+Classe de interesse: Horse
+Classe de interesse: Hot dog
+Classe de interesse: House
+Classe de interesse: Houseplant
+Classe de interesse: Human arm
+Classe de interesse: Human beard
+Classe de interesse: Human body
+Classe de interesse: Human ear
+Classe de interesse: Human eye
+Classe de interesse: Human face
+Classe de interesse: Human foot
+Classe de interesse: Human hair
+Classe de interesse: Human hand
+Classe de interesse: Human head
+Classe de interesse: Human leg
+Classe de interesse: Human mouth
+Classe de interesse: Human nose
+Classe de interesse: Humidifier
+Classe de interesse: Ice cream
+Classe de interesse: Indoor rower
+Classe de interesse: Infant bed
+Classe de interesse: Insect
+Classe de interesse: Invertebrate
+Classe de interesse: Ipod
+Classe de interesse: Isopod
+Classe de interesse: Jacket
+Classe de interesse: Jacuzzi
+Classe de interesse: Jaguar (Animal)
+Classe de interesse: Jeans
+Classe de interesse: Jellyfish
+Classe de interesse: Jet ski
+Classe de interesse: Jug
+Classe de interesse: Juice
+Classe de interesse: Kangaroo
+Classe de interesse: Kettle
+Classe de interesse: Kitchen & dining room table
+Classe de interesse: Kitchen appliance
+Classe de interesse: Kitchen knife
+Classe de interesse: Kitchen utensil
+Classe de interesse: Kitchenware
+Classe de interesse: Kite
+Classe de interesse: Knife
+Classe de interesse: Koala
+Classe de interesse: Ladder
+Classe de interesse: Ladle
+Classe de interesse: Ladybug
+Classe de interesse: Lamp
+Classe de interesse: Land vehicle
+Classe de interesse: Lantern
+Classe de interesse: Laptop
+Classe de interesse: Lavender (Plant)
+Classe de interesse: Lemon
+Classe de interesse: Leopard
+Classe de interesse: Light bulb
+Classe de interesse: Light switch
+Classe de interesse: Lighthouse
+Classe de interesse: Lily
+Classe de interesse: Limousine
+Classe de interesse: Lion
+Classe de interesse: Lipstick
+Classe de interesse: Lizard
+Classe de interesse: Lobster
+Classe de interesse: Loveseat
+Classe de interesse: Luggage and bags
+Classe de interesse: Lynx
+Classe de interesse: Magpie
+Classe de interesse: Mammal
+Classe de interesse: Man
+Classe de interesse: Mango
+Classe de interesse: Maple
+Classe de interesse: Maracas
+Classe de interesse: Marine invertebrates
+Classe de interesse: Marine mammal
+Classe de interesse: Measuring cup
+Classe de interesse: Mechanical fan
+Classe de interesse: Medical equipment
+Classe de interesse: Microphone
+Classe de interesse: Microwave oven
+Classe de interesse: Milk
+Classe de interesse: Miniskirt
+Classe de interesse: Mirror
+Classe de interesse: Missile
+Classe de interesse: Mixer
+Classe de interesse: Mixing bowl
+Classe de interesse: Mobile phone
+Classe de interesse: Monkey
+Classe de interesse: Moths and butterflies
+Classe de interesse: Motorcycle
+Classe de interesse: Mouse
+Classe de interesse: Muffin
+Classe de interesse: Mug
+Classe de interesse: Mule
+Classe de interesse: Mushroom
+Classe de interesse: Musical instrument
+Classe de interesse: Musical keyboard
+Classe de interesse: Nail (Construction)
+Classe de interesse: Necklace
+Classe de interesse: Nightstand
+Classe de interesse: Oboe
+Classe de interesse: Office building
+Classe de interesse: Office supplies
+Classe de interesse: Orange
+Classe de interesse: Organ (Musical Instrument)
+Classe de interesse: Ostrich
+Classe de interesse: Otter
+Classe de interesse: Oven
+Classe de interesse: Owl
+Classe de interesse: Oyster
+Classe de interesse: Paddle
+Classe de interesse: Palm tree
+Classe de interesse: Pancake
+Classe de interesse: Panda
+Classe de interesse: Paper cutter
+Classe de interesse: Paper towel
+Classe de interesse: Parachute
+Classe de interesse: Parking meter
+Classe de interesse: Parrot
+Classe de interesse: Pasta
+Classe de interesse: Pastry
+Classe de interesse: Peach
+Classe de interesse: Pear
+Classe de interesse: Pen
+Classe de interesse: Pencil case
+Classe de interesse: Pencil sharpener
+Classe de interesse: Penguin
+Classe de interesse: Perfume
+Classe de interesse: Person
+Classe de interesse: Personal care
+Classe de interesse: Personal flotation device
+Classe de interesse: Piano
+Classe de interesse: Picnic basket
+Classe de interesse: Picture frame
+Classe de interesse: Pig
+Classe de interesse: Pillow
+Classe de interesse: Pineapple
+Classe de interesse: Pitcher (Container)
+Classe de interesse: Pizza
+Classe de interesse: Pizza cutter
+Classe de interesse: Plant
+Classe de interesse: Plastic bag
+Classe de interesse: Plate
+Classe de interesse: Platter
+Classe de interesse: Plumbing fixture
+Classe de interesse: Polar bear
+Classe de interesse: Pomegranate
+Classe de interesse: Popcorn
+Classe de interesse: Porch
+Classe de interesse: Porcupine
+Classe de interesse: Poster
+Classe de interesse: Potato
+Classe de interesse: Power plugs and sockets
+Classe de interesse: Pressure cooker
+Classe de interesse: Pretzel
+Classe de interesse: Printer
+Classe de interesse: Pumpkin
+Classe de interesse: Punching bag
+Classe de interesse: Rabbit
+Classe de interesse: Raccoon
+Classe de interesse: Racket
+Classe de interesse: Radish
+Classe de interesse: Ratchet (Device)
+Classe de interesse: Raven
+Classe de interesse: Rays and skates
+Classe de interesse: Red panda
+Classe de interesse: Refrigerator
+Classe de interesse: Remote control
+Classe de interesse: Reptile
+Classe de interesse: Rhinoceros
+Classe de interesse: Rifle
+Classe de interesse: Ring binder
+Classe de interesse: Rocket
+Classe de interesse: Roller skates
+Classe de interesse: Rose
+Classe de interesse: Rugby ball
+Classe de interesse: Ruler
+Classe de interesse: Salad
+Classe de interesse: Salt and pepper shakers
+Classe de interesse: Sandal
+Classe de interesse: Sandwich
+Classe de interesse: Saucer
+Classe de interesse: Saxophone
+Classe de interesse: Scale
+Classe de interesse: Scarf
+Classe de interesse: Scissors
+Classe de interesse: Scoreboard
+Classe de interesse: Scorpion
+Classe de interesse: Screwdriver
+Classe de interesse: Sculpture
+Classe de interesse: Sea lion
+Classe de interesse: Sea turtle
+Classe de interesse: Seafood
+Classe de interesse: Seahorse
+Classe de interesse: Seat belt
+Classe de interesse: Segway
+Classe de interesse: Serving tray
+Classe de interesse: Sewing machine
+Classe de interesse: Shark
+Classe de interesse: Sheep
+Classe de interesse: Shelf
+Classe de interesse: Shellfish
+Classe de interesse: Shirt
+Classe de interesse: Shorts
+Classe de interesse: Shotgun
+Classe de interesse: Shower
+Classe de interesse: Shrimp
+Classe de interesse: Sink
+Classe de interesse: Skateboard
+Classe de interesse: Ski
+Classe de interesse: Skirt
+Classe de interesse: Skull
+Classe de interesse: Skunk
+Classe de interesse: Skyscraper
+Classe de interesse: Slow cooker
+Classe de interesse: Snack
+Classe de interesse: Snail
+Classe de interesse: Snake
+Classe de interesse: Snowboard
+Classe de interesse: Snowman
+Classe de interesse: Snowmobile
+Classe de interesse: Snowplow
+Classe de interesse: Soap dispenser
+Classe de interesse: Sock
+Classe de interesse: Sofa bed
+Classe de interesse: Sombrero
+Classe de interesse: Sparrow
+Classe de interesse: Spatula
+Classe de interesse: Spice rack
+Classe de interesse: Spider
+Classe de interesse: Spoon
+Classe de interesse: Sports equipment
+Classe de interesse: Sports uniform
+Classe de interesse: Squash (Plant)
+Classe de interesse: Squid
+Classe de interesse: Squirrel
+Classe de interesse: Stairs
+Classe de interesse: Stapler
+Classe de interesse: Starfish
+Classe de interesse: Stationary bicycle
+Classe de interesse: Stethoscope
+Classe de interesse: Stool
+Classe de interesse: Stop sign
+Classe de interesse: Strawberry
+Classe de interesse: Street light
+Classe de interesse: Stretcher
+Classe de interesse: Studio couch
+Classe de interesse: Submarine
+Classe de interesse: Submarine sandwich
+Classe de interesse: Suit
+Classe de interesse: Suitcase
+Classe de interesse: Sun hat
+Classe de interesse: Sunglasses
+Classe de interesse: Surfboard
+Classe de interesse: Sushi
+Classe de interesse: Swan
+Classe de interesse: Swim cap
+Classe de interesse: Swimming pool
+Classe de interesse: Swimwear
+Classe de interesse: Sword
+Classe de interesse: Syringe
+Classe de interesse: Table
+Classe de interesse: Table tennis racket
+Classe de interesse: Tablet computer
+Classe de interesse: Tableware
+Classe de interesse: Taco
+Classe de interesse: Tank
+Classe de interesse: Tap
+Classe de interesse: Tart
+Classe de interesse: Taxi
+Classe de interesse: Tea
+Classe de interesse: Teapot
+Classe de interesse: Teddy bear
+Classe de interesse: Telephone
+Classe de interesse: Television
+Classe de interesse: Tennis ball
+Classe de interesse: Tennis racket
+Classe de interesse: Tent
+Classe de interesse: Tiara
+Classe de interesse: Tick
+Classe de interesse: Tie
+Classe de interesse: Tiger
+Classe de interesse: Tin can
+Classe de interesse: Tire
+Classe de interesse: Toaster
+Classe de interesse: Toilet
+Classe de interesse: Toilet paper
+Classe de interesse: Tomato
+Classe de interesse: Tool
+Classe de interesse: Toothbrush
+Classe de interesse: Torch
+Classe de interesse: Tortoise
+Classe de interesse: Towel
+Classe de interesse: Tower
+Classe de interesse: Toy
+Classe de interesse: Traffic light
+Classe de interesse: Traffic sign
+Classe de interesse: Train
+Classe de interesse: Training bench
+Classe de interesse: Treadmill
+Classe de interesse: Tree
+Classe de interesse: Tree house
+Classe de interesse: Tripod
+Classe de interesse: Trombone
+Classe de interesse: Trousers
+Classe de interesse: Truck
+Classe de interesse: Trumpet
+Classe de interesse: Turkey
+Classe de interesse: Turtle
+Classe de interesse: Umbrella
+Classe de interesse: Unicycle
+Classe de interesse: Van
+Classe de interesse: Vase
+Classe de interesse: Vegetable
+Classe de interesse: Vehicle
+Classe de interesse: Vehicle registration plate
+Classe de interesse: Violin
+Classe de interesse: Volleyball (Ball)
+Classe de interesse: Waffle
+Classe de interesse: Waffle iron
+Classe de interesse: Wall clock
+Classe de interesse: Wardrobe
+Classe de interesse: Washing machine
+Classe de interesse: Waste container
+Classe de interesse: Watch
+Classe de interesse: Watercraft
+Classe de interesse: Watermelon
+Classe de interesse: Weapon
+Classe de interesse: Whale
+Classe de interesse: Wheel
+Classe de interesse: Wheelchair
+Classe de interesse: Whisk
+Classe de interesse: Whiteboard
+Classe de interesse: Willow
+Classe de interesse: Window
+Classe de interesse: Window blind
+Classe de interesse: Wine
+Classe de interesse: Wine glass
+Classe de interesse: Wine rack
+Classe de interesse: Winter melon
+Classe de interesse: Wok
+Classe de interesse: Woman
+Classe de interesse: Wood-burning stove
+Classe de interesse: Woodpecker
+Classe de interesse: Worm
+Classe de interesse: Wrench
+Classe de interesse: Zebra
+Classe de interesse: Zucchini

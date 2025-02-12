@@ -3,7 +3,6 @@ import shutil  # Módulo para operações de cópia e remoção de arquivos
 import smtplib  # Biblioteca para envio de e-mails
 import ssl  # Biblioteca para criação de contexto seguro para envio de e-mails
 import random  # Biblioteca para operações aleatórias
-import torch  # Framework para deep learning
 from email.message import EmailMessage  # Classe para criação de mensagens de e-mail
 from ultralytics import YOLO  # YOLOv8 para detecção de objetos
 import fiftyone as fo  # Biblioteca para manipulação de datasets de visão computacional
@@ -13,6 +12,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 import cv2  # Biblioteca para manipulação de vídeos
 import datetime  # Biblioteca para obter o timestamp atual
 from fiftyone.utils.openimages import get_classes
+
 
 # ------------------- Configurações -------------------
 ADMIN_EMAIL = "admin@example.com"  # E-mail do administrador para envio de alertas
@@ -32,14 +32,16 @@ VAL_DIR = os.path.join(DATASET_DIR, "images", "val")
 LABELS_TRAIN_DIR = os.path.join(DATASET_DIR, "labels", "train")
 LABELS_VAL_DIR = os.path.join(DATASET_DIR, "labels", "val")
 
+CLASSES_CORTANTES = ["Knife", "Scissors", "Sword", "Axe", "Paper cutter", "Chisel"]
+
 # Obtendo a lista de classes de interesse
-classes = get_classes()
+classes = get_classes(version='v7', dataset_dir=None)
 
 # Exemplo de uso da lista de classes
 for classe in classes:
     print(f"Classe de interesse: {classe}")
 
-exit(0)
+#exit(0)
 
 def criar_pastas():
     # Criação dos diretórios se não existirem
@@ -100,10 +102,9 @@ def limpar_pastas():
 # ------------------- Preparação do dataset -------------------
 def preparar_dataset():
     """Baixa e organiza as imagens do dataset Open Images V7 para treinamento e validação."""
-    classes_cortantes = ["Knife", "Scissors", "Sword"]  # Classes de objetos cortantes
     samples = []  # Lista para armazenar as amostras coletadas
     
-    for classe in classes_cortantes:
+    for classe in CLASSES_CORTANTES:
         dataset = foz.load_zoo_dataset(
             "open-images-v7",
             split="train",
@@ -122,7 +123,7 @@ def preparar_dataset():
         "open-images-v7",
         split="train",
         label_types=["detections"],
-        exclude_classes=classes_cortantes,
+        exclude_classes=CLASSES_CORTANTES,
         max_samples=500,
         shuffle=True,
         cleanup=True,
@@ -148,8 +149,8 @@ def salvar_labels(sample, destino_label):
             detections = sample.ground_truth.detections
             for det in detections:
                 classe = det.label
-                if classe in ["Knife", "Scissors", "Sword"]:
-                    class_id = ["Knife", "Scissors", "Sword"].index(classe)
+                if classe in CLASSES_CORTANTES:
+                    class_id = CLASSES_CORTANTES.index(classe)
                     x, y, w, h = det.bounding_box  # YOLO usa bounding box normalizada
                     x_center = x + (w / 2)
                     y_center = y + (h / 2)
@@ -164,7 +165,7 @@ def carregar_modelo(modelo_path):
 # ------------------- Treinamento do modelo -------------------
 def treinar_modelo(modelo_path):
     """Treina o modelo YOLOv8 e salva o modelo treinado."""
-    modelo = YOLO("yolov8n.pt")
+    modelo = YOLO("yolov8l.pt")
     modelo.train(data=os.path.join(DATASET_DIR, "data.yaml"), epochs=10, imgsz=640)
     modelo.save(modelo_path)  # Salva o modelo treinado
     return modelo
@@ -187,9 +188,9 @@ def avaliar_modelo(modelo):
         for resultado in resultados[0].boxes:
             classe_id = int(resultado.cls.item())
             # Verifica se a classe é um objeto cortante
-            if classe_id < len(["Knife", "Scissors", "Sword"]):
+            if classe_id < len(CLASSES_CORTANTES):
                 # Mapeia o ID da classe para o nome do objeto
-                objeto_detectado = ["Knife", "Scissors", "Sword"][classe_id]
+                objeto_detectado = CLASSES_CORTANTES[classe_id]
 
                 # Adiciona a classe predita à lista de previsões
                 pred_labels.append(classe_id)
@@ -236,95 +237,104 @@ def avaliar_modelo(modelo):
         print(f"Erro: Número de amostras em y_true ({len(y_true)}) e y_pred ({len(y_pred)}) não correspondem.")
 
 
+def upscale_frame(frame, scale_factor=2, method=cv2.INTER_CUBIC):
+    """Aplica upscaling ao frame usando interpolação especificada."""
+    height, width = frame.shape[:2]
+    new_dimensions = (int(width * scale_factor), int(height * scale_factor))
+    return cv2.resize(frame, new_dimensions, interpolation=method)
+
+
 # ------------------- Avaliação do modelo em vídeo -------------------
 def avaliar_modelo_video(modelo, video_path):
-    """Avalia o modelo em um vídeo, extraindo frames a cada segundo."""
+    """Avalia o modelo em um vídeo, extraindo os frames do mesmo."""
     video = cv2.VideoCapture(video_path)
     fps = video.get(cv2.CAP_PROP_FPS)  # Obtém o FPS do vídeo
     frame_count = 0
 
+    frame_count = 1
     while video.isOpened():
         ret, frame = video.read()
         if not ret:
             break
 
-        # Extrai um frame a cada segundo
-        if frame_count % int(fps) == 0:
-            # Converte o frame para o formato PIL
-            frame_pil = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame_redimensionado = upscale_frame(frame_rgb, scale_factor=2)
+        frame_pil = Image.fromarray(frame_redimensionado)
 
-            # Realiza a detecção no frame
-            resultados = modelo(frame_pil)
-            draw = ImageDraw.Draw(frame_pil)
-            pred_labels = []
+        # Realiza a detecção no frame
+        resultados = modelo(frame_pil)
+        draw = ImageDraw.Draw(frame_pil)
+        pred_labels = []
 
-            # Itera por todos os resultados da detecção
-            for resultado in resultados[0].boxes:
-                classe_id = int(resultado.cls.item())
-                if classe_id < len(["Knife", "Scissors", "Sword"]):
-                    objeto_detectado = ["Knife", "Scissors", "Sword"][classe_id]
-                    pred_labels.append(classe_id)
-                    x1, y1, x2, y2 = resultado.xyxy[0].tolist()
-                    draw.rectangle([x1, y1, x2, y2], outline="red", width=2)
-                    draw.text((x1, y1), objeto_detectado, fill="red")
-                    # enviar_email(video_path, objeto_detectado)  # Adapte para enviar alertas de vídeo
+        for resultado in resultados[0].boxes:
+            classe_id = int(resultado.cls.item())
+            if classe_id < len(CLASSES_CORTANTES):
+                objeto_detectado = CLASSES_CORTANTES[classe_id]
+                pred_labels.append(classe_id)
+                x1, y1, x2, y2 = resultado.xyxy[0].tolist()
+                draw.rectangle([x1, y1, x2, y2], outline="red", width=2)
+                draw.text((x1, y1), objeto_detectado, fill="red")
 
-                    frame_pil.save(os.path.join(POSITIVOS_VIDEO_DIR, f"frame_{frame_count // int(fps)}.jpg"))
-                else:
-                    pred_labels.append(0)
-                    frame_pil.save(os.path.join(NEGATIVOS_VIDEO_DIR, f"frame_{frame_count // int(fps)}.jpg"))
+                # Salva o frame com as previsões (opcional)
+                frame_pil.save(os.path.join(POSITIVOS_VIDEO_DIR, f"frame_{frame_count}.jpg"))
 
-            # Salva o frame com as previsões (opcional)
-            frame_pil.save(os.path.join(VIDEO_FRAMES_DIR, f"frame_{frame_count // int(fps)}.jpg"))
+                # enviar_email(video_path, objeto_detectado)  # Adapte para enviar alertas de vídeo
+            else:
+                # Salva o frame com as previsões (opcional)
+                frame_pil.save(os.path.join(NEGATIVOS_VIDEO_DIR, f"frame_{frame_count}.jpg"))
+
+        #output_path = os.path.join(VIDEO_FRAMES_DIR, f"frame_{frame_count // int(fps)}.jpg")
+        #frame_pil.save(output_path)
 
         frame_count += 1
-
-    video.release()
-def avaliar_modelo_video(modelo, video_path):
-    """Avalia o modelo em um vídeo, extraindo frames a cada segundo."""
-    video = cv2.VideoCapture(video_path)
-    fps = video.get(cv2.CAP_PROP_FPS)  # Obtém o FPS do vídeo
-    frame_count = 0
-
-    while video.isOpened():
-        ret, frame = video.read()
-        if not ret:
-            break
-
-        # Extrai um frame a cada segundo
-        if frame_count % int(fps) == 0:
-            # Converte o frame para o formato PIL
-            frame_pil = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-
-            # Realiza a detecção no frame
-            resultados = modelo(frame_pil)
-            draw = ImageDraw.Draw(frame_pil)
-            pred_labels = []
-
-            for resultado in resultados[0].boxes:
-                classe_id = int(resultado.cls.item())
-                if classe_id < len(["Knife", "Scissors", "Sword"]):
-                    objeto_detectado = ["Knife", "Scissors", "Sword"][classe_id]
-                    pred_labels.append(classe_id)
-                    x1, y1, x2, y2 = resultado.xyxy[0].tolist()
-                    draw.rectangle([x1, y1, x2, y2], outline="red", width=2)
-                    draw.text((x1, y1), objeto_detectado, fill="red")
-
-                    # Salva o frame com as previsões (opcional)
-                    frame_pil.save(os.path.join(POSITIVOS_VIDEO_DIR, f"frame_{frame_count // int(fps)}.jpg"))
-
-                    # enviar_email(video_path, objeto_detectado)  # Adapte para enviar alertas de vídeo
-                else:
-                    # Salva o frame com as previsões (opcional)
-                    frame_pil.save(os.path.join(NEGATIVOS_VIDEO_DIR, f"frame_{frame_count // int(fps)}.jpg"))
-
-            output_path = os.path.join(VIDEO_FRAMES_DIR, f"frame_{frame_count // int(fps)}.jpg")
-            frame_pil.save(output_path)
             
 
-        frame_count += 1
+
 
     video.release()
+
+from PIL import Image, ImageDraw
+
+def testar_modelo_imagem(modelo, imagem_path):
+    """Testa o modelo em uma imagem e exibe os resultados."""
+    imagem = Image.open(imagem_path)
+    draw = ImageDraw.Draw(imagem)
+
+    print("Hello 1.")
+    resultados = modelo(imagem, conf=0.3, iou=0.5)
+    print(len(resultados), len(resultados[0].boxes))
+
+    if len(resultados) == 0:
+        print("Nenhum objeto detectado.")
+        return
+    
+    for resultado in resultados[0].boxes:
+        classe_id = 0
+
+        try:
+            classe_id = int(resultado.cls.item())
+        except:
+            print("Erro ao obter classe.")
+            continue
+
+        print(f"Classe ID: {classe_id}")
+        if classe_id < len(CLASSES_CORTANTES):
+            objeto_detectado = CLASSES_CORTANTES[classe_id]
+            x1, y1, x2, y2 = resultado.xyxy[0].tolist()
+
+            # Desenha a bounding box na imagem
+            draw.rectangle([x1, y1, x2, y2], outline="red", width=2)
+            draw.text((x1, y1), objeto_detectado, fill="red")
+
+            print("Objeto cortante detectado.")
+        else:
+            print("Objeto não cortante detectado.")
+
+    # Exibe a imagem com as anotações
+    imagem.show()
+
+    # Ou, salva a imagem em um arquivo
+    # imagem.save("imagem_com_deteccoes.jpg")
 
 # ------------------- Pipeline Principal -------------------
 def main():
@@ -346,6 +356,11 @@ def main():
     else:
         modelo = carregar_modelo(modelo_path)
       
+    # testa o modelo com uma única imagem
+    #testar_modelo_imagem(modelo, "imagens_teste/imagem.png")
+    #print("Avaliação da imagem concluída.")
+    #exit(0)
+
     # Avalia o modelo no vídeo
     video_path = "videos/video.mp4"  # Substitua pelo caminho do seu vídeo
     avaliar_modelo_video(modelo, video_path)
