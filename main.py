@@ -166,7 +166,7 @@ def carregar_modelo(modelo_path):
 def treinar_modelo(modelo_path):
     """Treina o modelo YOLOv8 e salva o modelo treinado."""
     modelo = YOLO("yolo11m.pt")
-    modelo.train(data=os.path.join(DATASET_DIR, "data.yaml"), epochs=10, imgsz=640)
+    modelo.train(data=os.path.join(DATASET_DIR, "data.yaml"), epochs=20, imgsz=640)
     modelo.save(modelo_path)  # Salva o modelo treinado
     return modelo
 
@@ -340,7 +340,7 @@ def testar_modelo_imagem(modelo, imagem_path):
 # ------------------- Pipeline Principal -------------------
 def main():
     # Variável para controlar se deve treinar ou usar modelo salvo
-    TREINAR_MODELO = False  # Defina como True para treinar, False para usar modelo salvo
+    TREINAR_MODELO = True  # Defina como True para treinar, False para usar modelo salvo
 
     modelo_path = "melhor_modelo.pt"  # Caminho para o modelo salvo
 
