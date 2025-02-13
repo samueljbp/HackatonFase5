@@ -21,9 +21,9 @@ SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 
 # 1. Carregar o modelo treinado
-model = YOLO("yolov8l.pt")
+model = YOLO("melhor_modelo.pt")
 
-#print(model.names)
+print(model.names)
 
 # 2. Especificar o caminho do vídeo
 video_path = VIDEOS_DIR + "/video.mp4"  # Substitua pelo caminho do seu vídeo
@@ -31,19 +31,19 @@ video_path = VIDEOS_DIR + "/video.mp4"  # Substitua pelo caminho do seu vídeo
 target_classes = [43, 76]  # Substitua 47 pelo ID correto da classe faca no seu modelo
 
 # 3. Processar o vídeo
-""" results = model.predict(
+results = model.predict(
     source=video_path,  # Caminho do vídeo
     conf=0.5,           # Limite de confiança para as detecções
     save=True,          # Salvar o vídeo com as detecções
     show=True,           # Exibir o vídeo em tempo real (opcional)
-    classes=target_classes  # Filtrar as detecções por classes específicas
-) """
+    #classes=target_classes  # Filtrar as detecções por classes específicas
+)
 
 # 4. Mensagem final
 print("Processamento do vídeo concluído!")
-#print(f"Vídeo com detecções salvo em: {results[0].save_dir}")
+print(f"Vídeo com detecções salvo em: {results[0].save_dir}")
 
-#exit(0)
+exit(0)
 
 # Enviar e-mail com o frame salvo
 def send_email_with_attachment(to_email, subject, body, attachment_path):
