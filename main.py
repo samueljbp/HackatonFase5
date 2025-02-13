@@ -165,8 +165,8 @@ def carregar_modelo(modelo_path):
 # ------------------- Treinamento do modelo -------------------
 def treinar_modelo(modelo_path):
     """Treina o modelo YOLOv8 e salva o modelo treinado."""
-    modelo = YOLO("yolo11m.pt")
-    modelo.train(data=os.path.join(DATASET_DIR, "data.yaml"), epochs=20, imgsz=640)
+    modelo = YOLO("yolov8n.pt")
+    modelo.train(data=os.path.join(DATASET_DIR, "data.yaml"), epochs=50, imgsz=640)
     modelo.save(modelo_path)  # Salva o modelo treinado
     return modelo
 
