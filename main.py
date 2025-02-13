@@ -165,7 +165,7 @@ def carregar_modelo(modelo_path):
 # ------------------- Treinamento do modelo -------------------
 def treinar_modelo(modelo_path):
     """Treina o modelo YOLOv8 e salva o modelo treinado."""
-    modelo = YOLO("yolov8l.pt")
+    modelo = YOLO("yolo11m.pt")
     modelo.train(data=os.path.join(DATASET_DIR, "data.yaml"), epochs=10, imgsz=640)
     modelo.save(modelo_path)  # Salva o modelo treinado
     return modelo
@@ -258,8 +258,8 @@ def avaliar_modelo_video(modelo, video_path):
             break
 
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        frame_redimensionado = upscale_frame(frame_rgb, scale_factor=2)
-        frame_pil = Image.fromarray(frame_redimensionado)
+        #frame_redimensionado = upscale_frame(frame_rgb, scale_factor=2)
+        frame_pil = Image.fromarray(frame_rgb)
 
         # Realiza a detecção no frame
         resultados = modelo(frame_pil)
@@ -271,6 +271,7 @@ def avaliar_modelo_video(modelo, video_path):
             if classe_id < len(CLASSES_CORTANTES):
                 objeto_detectado = CLASSES_CORTANTES[classe_id]
                 pred_labels.append(classe_id)
+                
                 x1, y1, x2, y2 = resultado.xyxy[0].tolist()
                 draw.rectangle([x1, y1, x2, y2], outline="red", width=2)
                 draw.text((x1, y1), objeto_detectado, fill="red")
@@ -339,7 +340,7 @@ def testar_modelo_imagem(modelo, imagem_path):
 # ------------------- Pipeline Principal -------------------
 def main():
     # Variável para controlar se deve treinar ou usar modelo salvo
-    TREINAR_MODELO = True  # Defina como True para treinar, False para usar modelo salvo
+    TREINAR_MODELO = False  # Defina como True para treinar, False para usar modelo salvo
 
     modelo_path = "melhor_modelo.pt"  # Caminho para o modelo salvo
 
