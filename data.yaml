@@ -1,0 +1,10 @@
+
+
+train: /content/drive/MyDrive/Hackaton/Dataset/train/images
+val: /content/drive/MyDrive/Hackaton/Dataset/val/images
+
+# Número de classes
+nc: 1
+
+# Nomes das classes
+names: ['Knife']
