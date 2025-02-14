@@ -1,94 +1,135 @@
-# README - Detecção de Objetos Cortantes com YOLO
+Detecção de Facas em Vídeos com YOLOv8
+Este repositório contém um código Python para detecção de facas em vídeos, utilizando a biblioteca Ultralytics YOLOv8. O objetivo principal é identificar a presença de facas em vídeos, com o intuito de alertar sobre possíveis riscos de segurança.
 
-Este projeto utiliza o modelo YOLO para detectar objetos cortantes (facas, tesouras, espadas, etc.) em imagens e vídeos. O sistema também pode enviar alertas por e-mail ao identificar um objeto cortante.
+Sumário
+Introdução
+Estrutura de Pastas
+Configuração do Ambiente
+Como Executar
+Estrutura do Código
+Dependências
+Resultados
+Próximos Passos
+Licença
 
-## 1. Instalação de Dependências
+1. Introdução
+   A detecção de objetos em vídeos é um problema comum em diversas áreas, como segurança, vigilância, análise de tráfego e muitas outras. A solução tradicional para este tipo de problema envolve o uso de algoritmos de visão computacional e aprendizado de máquina para identificar padrões e características que definem o objeto de interesse (neste caso, facas).
 
-Antes de executar o código, instale todas as dependências necessárias:
+Este código utiliza o modelo YOLOv8 (You Only Look Once), um detector de objetos de última geração que se destaca pela sua velocidade e precisão. O YOLOv8 é capaz de identificar e localizar objetos em imagens e vídeos em tempo real, tornando-o ideal para aplicações que exigem alta performance.
 
-```bash
-pip install ultralytics fiftyone opencv-python pillow smtplib
-```
+2. Estrutura de Pastas
+   A estrutura de pastas do projeto deve ser organizada da seguinte forma:
 
-### Explicação das Dependências
+detecção-facas-yolov8/
+├── data/
+│ ├── train/
+│ │ ├── images/
+│ │ └── labels/
+│ └── val/
+│ ├── images/
+│ └── labels/
+├── runs/
+│ └── detect/
+│ └── yolov8_knife_detection/
+├── data.yaml
+├── main.py
+├── requirements.txt
+└── secret.txt (não incluído no repositório)
+Explicação:
 
--   `ultralytics`: Biblioteca que fornece implementações otimizadas do modelo YOLO para detecção de objetos.
--   `fiftyone`: Usada para gerenciar e visualizar datasets anotados, facilitando o trabalho com imagens rotuladas.
--   `opencv-python`: Biblioteca de processamento de imagens e vídeos, utilizada para capturar e exibir os resultados do modelo.
--   `pillow`: Biblioteca para manipulação de imagens, como carregamento e conversão de formatos.
--   `smtplib`: Módulo padrão do Python usado para enviar e-mails, essencial para a funcionalidade de alertas.
+data/: Contém o dataset de imagens e labels para treinamento e validação do modelo.
+train/: Pasta para as imagens e labels de treinamento.
+val/: Pasta para as imagens e labels de validação.
+images/: Pasta para as imagens.
+labels/: Pasta para os arquivos de label no formato YOLO.
+runs/detect/: Pasta onde os resultados da detecção (vídeos e imagens com as detecções) são salvos.
+data.yaml: Arquivo de configuração com informações sobre o dataset.
+main.py: Script principal que coordena todas as etapas do processo.
+requirements.txt: Arquivo com as dependências do projeto.
+secret.txt: Arquivo (não incluído no repositório por questões de segurança) contendo a senha do e-mail remetente. 3. Configuração do Ambiente
+Para executar o código, você precisará configurar o ambiente Python com as bibliotecas necessárias. Siga os seguintes passos:
 
-## 2. Estrutura de Diretórios Necessária
+Instale o Python: Se você ainda não tem o Python instalado, baixe a versão mais recente em https://www.python.org/downloads/ e siga as instruções de instalação.
 
-Certifique-se de que a seguinte estrutura de diretórios está configurada corretamente:
+Crie um ambiente virtual (opcional): É recomendado criar um ambiente virtual para isolar as dependências do projeto. Você pode fazer isso utilizando o módulo venv:
 
-```
-Hackaton/
-│── Dataset/
-│   │── train/
-│   │   │── images/  # Contém imagens de treino
-│   │   │── labels/  # Contém labels no formato YOLO
-│   │── val/
-│   │   │── images/  # Contém imagens de validação
-│   │   │── labels/  # Contém labels no formato YOLO
-│── models/
-│   │── best.pt  # Modelo treinado salvo aqui
-│── videos/
-│   │── test_video.mp4  # Vídeos para teste do modelo
-```
+Bash
 
-## 3. Treinamento do Modelo
+python3 -m venv .venv
+Ative o ambiente virtual:
 
-Para treinar o modelo, utilize o seguinte comando:
+Linux/macOS:
 
-```python
-from ultralytics import YOLO
+<!-- end list -->
 
-model = YOLO("yolov8n.pt")  # Escolha um modelo base
-model.train(data="Hackaton/Dataset/dataset.yaml", epochs=50)
-```
+Bash
 
-O modelo treinado será salvo na pasta `models/`.
+source .venv/bin/activate
+Windows:
 
-## 4. Testando o Modelo com um Vídeo
+<!-- end list -->
 
-Para testar o modelo em um vídeo, utilize:
+Bash
 
-```python
-import cv2
-from ultralytics import YOLO
+.venv\Scripts\activate
+Instale as dependências:
 
-model = YOLO("models/best.pt")
-cap = cv2.VideoCapture("videos/test_video.mp4")
+Bash
 
-while cap.isOpened():
-    ret, frame = cap.read()
-    if not ret:
-        break
-    results = model(frame)
-    cv2.imshow("YOLO Detection", results.render()[0])
-    if cv2.waitKey(1) & 0xFF == ord("q"):
-        break
-cap.release()
-cv2.destroyAllWindows()
-```
+pip install -r requirements.txt
+O arquivo requirements.txt contém todas as dependências do projeto.
 
-## 5. Envio de Alertas por E-mail
+4. Como Executar
+   Clone o repositório:
 
-O envio de alertas por email será feito automaticamente ao executar o trecho abaixo:
+Bash
 
-# Enviando os e-mails
+git clone https://github.com/[seu-nome-de-usuario]/[nome-do-repositorio].git
+Acesse o diretório do projeto:
 
-sender_email = REMETENTE
-for receiver_email in DESTINATARIOS_VALIDOS:
-enviar_email(sender_email, receiver_email, QTD, VIDEO, PASSWORD)
+Bash
 
-Este trecho funcionará automaticamente desde que os trechos anteriores tenham sido executados. As variáveis já estarão todas preenchidas.
+cd detecção-facas-yolov8
+Execute o script principal:
 
-## 6. Considerações Finais
+Bash
 
--   Certifique-se de ter permissões para acessar os diretórios corretos.
--   O modelo deve ser treinado antes de realizar testes.
--   Para envio de e-mails, pode ser necessário ativar "Acesso a aplicativos menos seguros" no provedor de e-mail ou configurar autenticação por aplicativo.
+python main.py
+O script main.py contém o código principal do sistema de detecção de facas.
 
-Caso tenha dúvidas, consulte a documentação do YOLO e das bibliotecas utilizadas.
+5. Estrutura do Código
+   O código é dividido em diversas etapas, desde a conversão de labels até o envio de e-mails com alertas. Abaixo, listamos os principais arquivos e suas funcionalidades:
+
+main.py: Script principal que coordena todas as etapas do processo.
+utils.py: Arquivo auxiliar com funções para conversão de labels, envio de e-mails e outras tarefas.
+data.yaml: Arquivo de configuração com informações sobre o dataset.
+secret.txt: Arquivo (não incluído no repositório por questões de segurança) contendo a senha do e-mail remetente. 6. Dependências
+As principais dependências do projeto são:
+
+ultralytics
+Pillow
+opencv-python
+logging
+random
+smtplib
+ssl
+email
+os
+sys
+Todas as dependências estão listadas no arquivo requirements.txt.
+
+7. Resultados
+   Os resultados da detecção de facas, incluindo as imagens e vídeos com as detecções, são salvos no diretório runs/detect.
+
+8. Próximos Passos
+   Melhorar a precisão do modelo: Coletar um dataset maior e mais diversificado de imagens de facas, ajustar os hiperparâmetros do modelo durante o treinamento e utilizar técnicas de aumento de dados para melhorar a precisão do modelo.
+   Implementar um sistema de alerta em tempo real: Integrar o código com um sistema de câmeras de segurança para realizar a detecção em tempo real e enviar alertas imediatos em caso de detecção de facas.
+   Implementar um painel de controle: Criar um painel de controle com interface gráfica para facilitar a visualização dos resultados, o gerenciamento dos alertas e a configuração do sistema.
+9. Licença
+   Este projeto está licenciado sob a licença MIT.
+
+Contato
+Em caso de dúvidas ou sugestões, entre em contato através do email [endereço de email removido].
+
+Agradecimentos
+Agradecemos à equipe do Ultralytics YOLOv8 pelo desenvolvimento da biblioteca e à comunidade de visão computacional pelo apoio e inspiração.

@@ -1,0 +1,11 @@
+ultralytics
+Pillow
+opencv-python
+logging
+random
+smtplib
+ssl
+email
+os
+sys
+numpy  # Adicionado para melhor compatibilidade com YOLOv8
