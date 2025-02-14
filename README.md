@@ -10,6 +10,20 @@ Antes de executar o notebook, instale as dependências necessárias:
 pip install ultralytics opencv-python
 ```
 
+Além disso, é necessário colocar as imagens e labels de treinamento nos seguintes caminhos do seu Google Drive:
+
+Imagens de treino:
+"/content/drive/MyDrive/Hackaton/Dataset/val/images"
+
+Labels de treino:
+"/content/drive/MyDrive/Hackaton/Dataset/val/labels"
+
+Para o notebook de teste com o video, coloque o arquivo do modelo yolo11m.pt no seguinte caminho do ambiente colab:
+/content/yolo11m.pt
+
+E coloque o arquivo video.mp4 no seguinte caminho do ambiente colab:
+/content/video.mp4
+
 ## Estrutura do Notebook
 
 1. **Conversão das Labels**: Preparação e organização dos dados rotulados.
