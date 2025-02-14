@@ -59,16 +59,10 @@ python3 -m venv .venv
 Ative o ambiente virtual:
 
 Linux/macOS:
-
-<!-- end list -->
-
 Bash
 
 source .venv/bin/activate
 Windows:
-
-<!-- end list -->
-
 Bash
 
 .venv\Scripts\activate
@@ -129,7 +123,7 @@ Todas as dependências estão listadas no arquivo requirements.txt.
    Este projeto está licenciado sob a licença MIT.
 
 Contato
-Em caso de dúvidas ou sugestões, entre em contato através do email [endereço de email removido].
+Em caso de dúvidas ou sugestões, entre em contato através do email [[endereço de email removido]](mailto:[endereço de email removido]).
 
 Agradecimentos
 Agradecemos à equipe do Ultralytics YOLOv8 pelo desenvolvimento da biblioteca e à comunidade de visão computacional pelo apoio e inspiração.
